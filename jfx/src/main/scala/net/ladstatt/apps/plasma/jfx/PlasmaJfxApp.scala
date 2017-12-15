@@ -11,7 +11,7 @@ import javafx.stage.Stage
 
 class PlasmaJfxApp extends Application {
 
-  private val BigScreen: (Int, Int) = (1024, 768)
+  private val BigScreen: (Int, Int) = (1200, 800)
   private val MediumScreen: (Int, Int) = (800, 600)
   private val SmallScreen: (Int, Int) = (640, 480)
   private val Banner: (Int, Int) = (450, 150)
@@ -22,7 +22,7 @@ class PlasmaJfxApp extends Application {
     */
   val (width, height) = BigScreen
 
-  val effect = PlasmaEffect(width, height)
+  val effect = PlasmaEffect(width, height, 1)
 
   val canvasArray: Array[Int] = Array.tabulate(width * height)(i => 0)
 

@@ -1,18 +1,22 @@
 package net.ladstatt.apps.plasma
 
-import java.text.DecimalFormat
-import java.util.Random
 
-import scala.collection.immutable.ListMap
 
-case class PlasmaEffect(width: Int, height: Int) {
+
+/**
+  *
+  * @param width
+  * @param height
+  * @param blockSize how many array elements do we need for one pixel
+  */
+case class PlasmaEffect(width: Int, height: Int, blockSize: Int)  {
 
   /**
     * ranges for x and y direction
     */
   val (ixs, iys) = (0 until width, 0 until height)
 
-  val (xs: Array[Int], ys: Array[Int]) = (ixs.toArray, iys.map(_ * width).toArray)
+  val (xs: Array[Int], ys: Array[Int]) = (ixs.map(_ * blockSize).toArray, iys.map(_ * width * blockSize).toArray)
 
   val xPiFac: Double = 2 * Math.PI / width.toDouble
   val yPiFac: Double = 2 * Math.PI / height.toDouble
@@ -22,6 +26,22 @@ case class PlasmaEffect(width: Int, height: Int) {
 
   val colorDepth = 254
 
+  protected def floatingCircles(time: Double, colX: Double, colY: Double) = {
+    val cx = colX + 0.5 * sin(time / 5)
+    val cy = colY + 0.5 * cos(time / 3)
+    sin(Math.sqrt(9 * (cx * cx + cy * cy) + 1) + 5 * time)
+  }
+
+  protected def wobblingBars(time: Double, colX: Double, colY: Double): Double = {
+    sin(1 * (colX * sin(5 * time / 2) + colY * cos(5 * time / 3)) + 5 * time)
+  }
+
+  protected def wanderingBars(time: Double, colX: Double, colY: Double): Double = {
+    val barCount = 2
+    val speedLeft = 15
+    sin(colY * barCount + time * speedLeft)
+  }
+
 
   def draw(a: Array[Int], time: Double): (Array[Int], Double) = {
 
@@ -30,7 +50,7 @@ case class PlasmaEffect(width: Int, height: Int) {
       var xIdx = 0
       val y = ys(yIdx)
       val colY = colYs(yIdx)
-      // println(s"yIdx: $yIdx, \t\tcolY : ${colYs(yIdx)}")
+
       while (xIdx < width) {
         val x = xs(xIdx)
         val colX = colXs(xIdx)
@@ -68,24 +88,8 @@ case class PlasmaEffect(width: Int, height: Int) {
     val b = (Math.abs(sin(v * Math.PI)) * colorDepth).toInt
     val alpha = 255
 
-    backingArray(x + 0 + y) = (alpha << 24) + (r << 16) + (g << 8) + b
+    backingArray(x + y) = (alpha << 24) + (r << 16) + (g << 8) + b
 
-  }
-
-  private def floatingCircles(time: Double, colX: Double, colY: Double) = {
-    val cx = colX + 0.5 * sin(time / 5)
-    val cy = colY + 0.5 * cos(time / 3)
-    sin(Math.sqrt(9 * (cx * cx + cy * cy) + 1) + 5 * time)
-  }
-
-  private def wobblingBars(time: Double, colX: Double, colY: Double): Double = {
-    sin(1 * (colX * sin(5 * time / 2) + colY * cos(5 * time / 3)) + 5 * time)
-  }
-
-  private def wanderingBars(time: Double, colX: Double, colY: Double): Double = {
-    val barCount = 2
-    val speedLeft = 15
-    sin(colY * barCount + time * speedLeft)
   }
 
   val m2pi = r(2 * Math.PI)
@@ -104,15 +108,13 @@ case class PlasmaEffect(width: Int, height: Int) {
 
   /**
     * reduces sin calculation to a lookup, possibly inlined by compiler
+    *
     * @param angle
     * @return
     */
-  @inline
-  def sin(angle: Double): Double = sinTable(((r(angle % m2pi) + m2pi) * 1000).toInt)
-  @inline
-  def cos(angle: Double): Double = cosTable(((r(angle % m2pi) + m2pi) * 1000).toInt)
+  @inline def sin(angle: Double): Double = sinTable(((r(angle % m2pi) + m2pi) * 1000).toInt)
 
-  //def cos(angle: Double): Double = Math.cos(angle)
+  @inline def cos(angle: Double): Double = cosTable(((r(angle % m2pi) + m2pi) * 1000).toInt)
 
 
 
