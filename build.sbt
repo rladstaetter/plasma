@@ -1,12 +1,10 @@
 import sbt.{Def, _}
-import Dependencies._
 import BuildConstants._
 
 lazy val commonSettings: Seq[Def.SettingsDefinition] = Seq(
   organization := org,
   scalaVersion := scalaVer,
   version := buildVer,
-  libraryDependencies += scalaTest,
   fork := true
 )
 
@@ -23,7 +21,7 @@ lazy val js = (project in file("js/")).
   settings(commonSettings: _*).
   settings(
     name := "js",
-    libraryDependencies ++= Seq("org.scala-js" %%% "scalajs-dom" % "0.9.3", scalaTest),
+    libraryDependencies ++= Seq("org.scala-js" %%% "scalajs-dom" % "0.9.4"),
     fork := false
   ).dependsOn(model)
 

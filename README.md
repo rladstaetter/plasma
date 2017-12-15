@@ -32,5 +32,5 @@ This project was inspired by https://www.bidouille.org/prog/plasma and as such s
 
 ## License
 
-MIT License
+See [LICENSE].
 

@@ -1,6 +1,5 @@
-package net.ladstatt.apps.plasma
+package net.ladstatt.apps.plasma.jfx
 
-import net.ladstatt.apps.plasma.jfx.PlasmaJfxApp
 import _root_.javafx.application.Application
 
 /**

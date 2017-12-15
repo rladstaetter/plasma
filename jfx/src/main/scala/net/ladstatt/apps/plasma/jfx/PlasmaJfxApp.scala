@@ -20,10 +20,13 @@ class PlasmaJfxApp extends Application {
   /**
     * the width and height of our visual area
     */
-  val (width, height) = SmallScreen
+  val (width, height) = BigScreen
 
   val effect = PlasmaEffect(width, height)
 
+  val canvasArray: Array[Int] = Array.tabulate(width * height)(i => 0)
+
+  var t = 0.0
 
   def time[A](a: => A, display: Long => Unit = s => (), divisor: Int = 1000 * 1000): A = {
     val now = System.nanoTime
@@ -44,32 +47,20 @@ class PlasmaJfxApp extends Application {
     primaryStage.setScene(new Scene(root))
     primaryStage.show()
 
-
     new AnimationTimer() {
-
-      var cnt = 0
-      var t = 0.0
-
       override def handle(now: Long): Unit = {
-        cnt = cnt + 1
-        if (cnt % 2 == 0) {
-
-          val (a, nextT) = effect.draw(t)
-          drawByteArray(canvas, a)
-          cnt = 0
-          t = nextT
-
-        }
+        val (a, nextT) = effect.draw(canvasArray, t)
+        drawArray(canvas, a)
+        t = nextT
       }
     }.start()
-
 
   }
 
 
-  private def drawByteArray(canvas: Canvas, bytes: Array[Byte]) = {
+  private def drawArray(canvas: Canvas, argbEncodedPixels: Array[Int]) = {
     val pxw: PixelWriter = canvas.getGraphicsContext2D.getPixelWriter
-    pxw.setPixels(0, 0, width, height, PixelFormat.getByteRgbInstance, bytes, 0, width * 3)
+    pxw.setPixels(0, 0, width, height, PixelFormat.getIntArgbInstance, argbEncodedPixels, 0, width)
   }
 
 }
