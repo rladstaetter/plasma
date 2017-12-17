@@ -27,7 +27,6 @@ object Plasma {
     val pEffect = PlasmaEffect(width, height, 4)
     val fn: js.Function0[Any] = () => run(ctx, pEffect, width, height)
     val handler = dom.window.setInterval(fn, timeout)
-
   }
 
   def run(ctx: CanvasRenderingContext2D, pEffect: PlasmaEffect, width: Int, height: Int): Unit = {

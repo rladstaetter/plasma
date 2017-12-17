@@ -1,6 +1,8 @@
 package net.ladstatt.apps.plasma
 
 import scala.scalajs.js
+import Math.sin
+import Math.cos
 
 /**
   *
@@ -8,7 +10,9 @@ import scala.scalajs.js
   * @param height
   * @param blockSize how many array elements do we need for one pixel
   */
-case class PlasmaEffect(width: Int, height: Int, blockSize: Int)  {
+case class PlasmaEffect(width: Int, height: Int, blockSize: Int) {
+
+  import EffectBox._
 
   /**
     * ranges for x and y direction
@@ -17,29 +21,15 @@ case class PlasmaEffect(width: Int, height: Int, blockSize: Int)  {
 
   val (xs: Array[Int], ys: Array[Int]) = (ixs.map(_ * blockSize).toArray, iys.map(_ * width * blockSize).toArray)
 
-  val xPiFac: Double = 2 * Math.PI / width.toDouble
-  val yPiFac: Double = 2 * Math.PI / height.toDouble
+  private val pi2: Double = 2 * Math.PI
+
+  val xPiFac: Double = pi2 / width.toDouble
+  val yPiFac: Double = pi2 / height.toDouble
 
   val colXs: Array[Double] = ixs.map(x => xPiFac * x - Math.PI).toArray
   val colYs: Array[Double] = iys.map(y => yPiFac * y - Math.PI).toArray
 
   val colorDepth = 254
-
-  protected def floatingCircles(time: Double, colX: Double, colY: Double) = {
-    val cx = colX + 0.5 * sin(time / 5)
-    val cy = colY + 0.5 * cos(time / 3)
-    sin(Math.sqrt(9 * (cx * cx + cy * cy) + 1) + 5 * time)
-  }
-
-  protected def wobblingBars(time: Double, colX: Double, colY: Double): Double = {
-    sin(1 * (colX * sin(5 * time / 2) + colY * cos(5 * time / 3)) + 5 * time)
-  }
-
-  protected def wanderingBars(time: Double, colX: Double, colY: Double): Double = {
-    val barCount = 2
-    val speedLeft = 15
-    sin(colY * barCount + time * speedLeft)
-  }
 
 
   def draw(a: js.Array[Int], time: Double): (js.Array[Int], Double) = {
@@ -62,6 +52,12 @@ case class PlasmaEffect(width: Int, height: Int, blockSize: Int)  {
     (a, time + yPiFac)
   }
 
+
+  //val fns: Seq[SfxFn] = Seq(wanderingBars, floatingCircles)
+  //val fns2: Seq[SfxFn] = Seq(wobblingBars)
+  //val fns1: Seq[SfxFn] = Seq(floatingCircles)
+  val fns: Seq[SfxFn] = Seq(wanderingBars, wobblingBars, floatingCircles)
+
   private def paintPixel(backingArray: js.Array[Int]
                          , time: Double
                          , x: Int
@@ -69,30 +65,32 @@ case class PlasmaEffect(width: Int, height: Int, blockSize: Int)  {
                          , y: Int
                          , colY: Double): Unit = {
 
+    //val v = Random.shuffle(fns).foldLeft(0.0)((acc, fn) => acc + fn(time, colX, colY))
+
     // wandering bars from right to left
-    val wandering = wanderingBars(time, colX, colY)
+    val wandering = wanderingBars(0, time, colX, colY)
 
     // wobbling bars round each other
-    val wobbling = wobblingBars(time, colX, colY)
+    val wobbling = wobblingBars(wandering, time, colX, colY)
 
     // circles floating around
-    val floating = floatingCircles(time, colX, colY)
+    val floating = floatingCircles(wobbling, time, colX, colY)
 
     // adding all together
     val v: Double = wandering + wobbling + floating
+    import Math._
 
+    val rb = x + y
+    val gb = x + y + 1
+    val bb = x + y + 2
+    val ab = x + y + 3
 
-    backingArray(x + 0 + y) = 0
-    backingArray(x + 1 + y) = (Math.abs(sin(v * Math.PI + 2 * Math.PI / 3)) * colorDepth).toInt
-    backingArray(x + 2 + y) = (Math.abs(sin(v * Math.PI)) * colorDepth).toInt
-    backingArray(x + 3 + y) = 254
+    backingArray(rb) = 0
+    backingArray(gb) = (Math.abs(sin(v * Math.PI + sin(v))) * colorDepth).toInt
+    backingArray(bb) = (Math.abs(sin(v * Math.PI)) * colorDepth).toInt
+    backingArray(ab) = (Math.sin(abs(floating * v)) * colorDepth).toInt
 
   }
-
-
-  def sin(angle: Double): Double = Math.sin(angle)
-
-  def cos(angle: Double): Double = Math.cos(angle)
 
 
 }
