@@ -32,7 +32,7 @@ After entering this command, open plasma.html with your favorite browser - you s
 
 ## Thanks
 
-This project was inspired by https://www.bidouille.org/prog/plasma/ and as such should be mentioned here. 
+This project is a reimplementation of https://www.bidouille.org/prog/plasma/ - go there if you want a more in depth explanation about the math behind this project.
 
 ## License
 
