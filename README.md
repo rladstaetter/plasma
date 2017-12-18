@@ -2,6 +2,10 @@
 
 An old school plasma effect written in Scala. It creates a plasma effect both in JavaFX and Scala.js. 
 
+![a plasma effect](plasma-effect.png?raw=true)
+
+See http://ladstatt.net/plasma/ for a online demo.
+
 ## How to compile
 
 Start sbt in the main directory.
@@ -14,7 +18,7 @@ and afterwards
 
     run
     
-you should see a window showcasing the plasma effect.
+you should see a window showcasing the plasma effect using JavaFX.
 
 If you want to see the javascript version, enter
 
@@ -24,13 +28,14 @@ and afterwards
 
     fastOptJS
     
-After entering this command, open plasma.html with your favorite browser.
+After entering this command, open plasma.html with your favorite browser - you should see the javascript demo.
 
 ## Thanks
 
-This project was inspired by https://www.bidouille.org/prog/plasma and as such should be mentioned here. 
+This project was inspired by https://www.bidouille.org/prog/plasma/ and as such should be mentioned here. 
 
 ## License
 
-See [LICENSE].
+MIT
+
 
