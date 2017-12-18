@@ -9,8 +9,9 @@ lazy val commonSettings: Seq[Def.SettingsDefinition] = Seq(
 )
 
 lazy val model = (project in file("model/")).
+  enablePlugins(ScalaJSPlugin).
   settings(commonSettings: _*).
-  settings(name := "model")
+  settings(name := "model", fork := false)
 
 lazy val jfx = (project in file("jfx/")).
   settings(commonSettings: _*).
@@ -27,4 +28,4 @@ lazy val js = (project in file("js/")).
 
 lazy val plasma = (project in file(".")).
   settings(commonSettings: _*).
-  settings(name := "plasma").aggregate(model,js,jfx)
+  settings(name := "plasma").aggregate(model, js, jfx)
