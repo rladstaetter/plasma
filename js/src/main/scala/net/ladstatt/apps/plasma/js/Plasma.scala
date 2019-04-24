@@ -7,7 +7,7 @@ import org.scalajs.dom.raw.CanvasRenderingContext2D
 import scala.scalajs.js.annotation.{JSExport, JSExportTopLevel}
 
 
-@JSExportTopLevel("net.ladstatt.apps.plasma.js.Plasma")
+@JSExportTopLevel("Plasma")
 object Plasma {
 
   var currentT: Double = 0

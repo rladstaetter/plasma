@@ -28,7 +28,14 @@ and afterwards
 
     fastOptJS
     
-After entering this command, open plasma.html with your favorite browser - you should see the javascript demo.
+After entering this command, open ./js/fastopt-plasma.html with your favorite browser - you should see the javascript demo.
+
+There is a second option to generate a full optimized javascript version, which runs slightly faster. You can generate this version by issuing
+
+    fullOptJS
+
+in the sbt console. Afterwards, open ./js/fullopt-plasma.html. It will compile a little bit longer, but the difference in file size is significant.
+
 
 ## Thanks
 
