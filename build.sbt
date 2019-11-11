@@ -1,19 +1,23 @@
 import BuildConstants._
 import sbt.{Def, _}
 
+
 lazy val commonSettings: Seq[Def.SettingsDefinition] = Seq(
   organization := org,
   scalaVersion := scalaVer,
   version := buildVer,
   fork := true,
   // add local maven repository to lookup libs (custom javafx)
-  resolvers += Resolver.mavenLocal
+  resolvers ++=
+    Seq(Resolver.mavenLocal)
 )
 
 lazy val model = (project in file("model/")).
-  enablePlugins(ScalaJSPlugin).
+  //  enablePlugins(ScalaJSPlugin).
   settings(commonSettings: _*).
-  settings(name := "model", fork := false)
+  settings(name := "model"
+    , fork := false
+  )
 
 lazy val jfx = (project in file("jfx/")).
   settings(commonSettings: _*).
@@ -22,7 +26,9 @@ lazy val jfx = (project in file("jfx/")).
       Seq(
         "org.openjfx" % "javafx-graphics" % jfxVer classifier "mac"
         , "org.openjfx" % "javafx-base" % jfxVer
-        , "org.openjfx" % "javafx-base" % jfxVer classifier "mac")
+        , "org.openjfx" % "javafx-base" % jfxVer classifier "mac"
+        , "org.scalactic" %% "scalactic" % "3.0.8"
+        , "org.scalatest" %% "scalatest" % "3.0.8" % "test")
   ).dependsOn(model)
 
 lazy val js = (project in file("js/")).
@@ -30,7 +36,7 @@ lazy val js = (project in file("js/")).
   settings(commonSettings: _*).
   settings(
     name := "js",
-    libraryDependencies ++= Seq("org.scala-js" %%% "scalajs-dom" % "0.9.4"),
+    libraryDependencies ++= Seq("org.scala-js" %%% "scalajs-dom" % "0.9.7"),
     fork := false
   ).dependsOn(model)
 
