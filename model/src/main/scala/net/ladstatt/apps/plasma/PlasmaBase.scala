@@ -12,7 +12,8 @@ import net.ladstatt.apps.plasma.MathUtil.{sin, cos}
   * @param blockSize how many array elements do we need for one pixel (important for writing bytes or int's)
   * @tparam A the array implementation
   */
-abstract class PlasmaBase[A](width: Int, height: Int, blockSize: Int) extends CustomCanvas[A](width, height, blockSize) {
+abstract class PlasmaBase[A](width: Int, height: Int, blockSize: Int)
+  extends CustomCanvas[A](width, height, blockSize) {
 
   type SfxFn = (Double, Double, Double, Double) => Double
 

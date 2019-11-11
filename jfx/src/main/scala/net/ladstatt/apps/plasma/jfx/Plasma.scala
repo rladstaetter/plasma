@@ -31,11 +31,11 @@ class PlasmaJfxApp extends Application {
   /**
     * the width and height of our visual area
     */
-  val (width, height) = RectangleScreen
+  val (width, height) = SmallScreen
 
-  val effect = JfxPlasmaEffect(width, height, 1)
+  val effect: JfxPlasmaEffect = JfxPlasmaEffect(width, height, 1)
 
-  val canvasArray: Array[Int] = Array.tabulate(width * height)(i => 0)
+  val canvasArray: Array[Int] = Array.tabulate(width * height)(_ => 0)
 
   var t = 0.0
 
@@ -72,7 +72,7 @@ class PlasmaJfxApp extends Application {
   }
 
 
-  private def drawArray(canvas: Canvas, argbEncodedPixels: Array[Int]) = {
+  private def drawArray(canvas: Canvas, argbEncodedPixels: Array[Int]): Unit = {
     val pxw: PixelWriter = canvas.getGraphicsContext2D.getPixelWriter
     pxw.setPixels(0, 0, width, height, PixelFormat.getIntArgbInstance, argbEncodedPixels, 0, width)
   }

@@ -1,12 +1,9 @@
 package net.ladstatt.apps.plasma
 
 /**
-  * Custom paint area to base an effect on it.
+  * Painting canvas for setting each pixel and painting frame after frame.
   *
-  * @param width
-  * @param height
-  * @param blockSize
-  * @tparam A
+  * @tparam A array to fill with values
   */
 abstract class CustomCanvas[A](width: Int, height: Int, blockSize: Int) {
 
