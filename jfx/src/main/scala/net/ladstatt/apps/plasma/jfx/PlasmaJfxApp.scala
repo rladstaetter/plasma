@@ -1,5 +1,7 @@
 package net.ladstatt.apps.plasma.jfx
 
+import java.util.concurrent.ThreadPoolExecutor
+
 import _root_.javafx.application.Application
 import javafx.animation.AnimationTimer
 import javafx.scene.Scene
@@ -7,6 +9,9 @@ import javafx.scene.canvas.Canvas
 import javafx.scene.layout.StackPane
 import javafx.stage.Stage
 import net.ladstatt.apps.plasma.{MathUtil, Timeline}
+
+import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, ExecutionContext, Future}
 
 /**
   * Old school graphic effect ('plasma') which is displayed via java fx.
@@ -21,6 +26,7 @@ object PlasmaJfxApp {
 
 class PlasmaJfxApp extends Application {
 
+  private val FullHdScreen: (Int, Int) = (1920, 1080)
   private val BigScreen: (Int, Int) = (1200, 800)
   private val MediumScreen: (Int, Int) = (800, 600)
   private val RectangleScreen: (Int, Int) = (640, 480)
@@ -31,15 +37,21 @@ class PlasmaJfxApp extends Application {
   /**
     * the width and height of our visual area
     */
-  val (width, height) = BigScreen
+  val (width, height) = RectangleScreen
 
   // timeline
-  var current = 0.0
-  var direction = 1
-  val nextValue = Timeline.calcNext(0.01, 0.0, MathUtil.m2pi) _
+  var timeLine = Timeline.Default
+  //private val upperBound: Int = (MathUtil.m2pi * 1000).toInt
 
-  val effect: IntArrayBackedPlasmaEffect = IntArrayBackedPlasmaEffect(width, height)
+  implicit val ec = scala.concurrent.ExecutionContext.global
 
+  val cachedEffects: Map[Int, IntArrayBackedPlasmaEffect] =
+    Await.result(
+      Future.sequence(for (i <- timeLine.range) yield {
+        Future {
+          i -> computeEffect(i)
+        }
+      }), Duration.Inf).toMap
 
   override def start(primaryStage: Stage): Unit = {
     primaryStage.setTitle("Plasma Effect")
@@ -56,17 +68,20 @@ class PlasmaJfxApp extends Application {
 
     new AnimationTimer() {
       override def handle(now: Long): Unit = {
-        effect.render(canvas, current);
-        val (ndirection, ncurrent) = nextValue(current, direction)
-        current = ncurrent
-        direction = ndirection
+        cachedEffects(timeLine.current).render(canvas)
+        timeLine = timeLine.next
         val duration = System.nanoTime() - now
-        println(s"$current t, fps: " + 1000d / (duration / (1000 * 1000)))
+       // println(s"${timeLine.current} t, fps: " + 1000d / (duration / (1000 * 1000)))
       }
     }.start()
 
   }
 
+  private def computeEffect(index: Int) = {
+    val i = IntArrayBackedPlasmaEffect(width, height, Array.tabulate(width * height)(_ => 0)).draw(index / 100.0)
+    println("precomputed " + index)
+    i
+  }
 }
 
 

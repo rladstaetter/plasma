@@ -16,20 +16,32 @@ object PlasmaTypes {
 
 object Timeline {
 
-  def calcNext(increment: Double, lowerBound: Double, upperBound: Double)(curVal: Double, direction: Int): (Int, Double) = {
-    val next = curVal + increment * direction
+  val Default = Timeline(1, 1, 1, 0, 1000)
+
+}
+
+case class Timeline(current: Int
+                    , direction: Int
+                    , increment: Int
+                    , lowerBound: Int
+                    , upperBound: Int) {
+
+  lazy val range = lowerBound to upperBound by increment
+
+  def next: Timeline = {
+    val next = current + increment * direction
     direction match {
       case 1 =>
         if (next < upperBound) {
-          (direction, next)
+          copy(direction = direction, current = next)
         } else {
-          (-direction, next)
+          copy(direction = -direction, current = next)
         }
       case -1 =>
         if (next > lowerBound) {
-          (direction, next)
+          copy(direction = direction, current = next)
         } else {
-          (-direction, next)
+          copy(direction = -direction, current = next)
         }
     }
   }

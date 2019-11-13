@@ -23,7 +23,6 @@ case class CustomCanvas(width: Int
   private val colXs: Array[Double] = ixs.map(x => xPiFac * x - Math.PI).toArray
   private val colYs: Array[Double] = iys.map(y => yPiFac * y - Math.PI).toArray
 
-  var up = 1
   def draw(time: Double): Unit = {
     var yIdx = 0
     while (yIdx < height) {
