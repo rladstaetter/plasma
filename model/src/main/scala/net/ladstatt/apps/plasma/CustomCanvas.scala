@@ -1,15 +1,14 @@
 package net.ladstatt.apps.plasma
 
+import net.ladstatt.apps.plasma.PlasmaTypes.AeraPainter
+
 /**
   * Painting canvas for setting each pixel and painting frame after frame.
-  *
-  * @tparam A array to fill with values
   */
-abstract class CustomCanvas[A](width: Int
-                            , height: Int
-                            , blockSize: Int) {
-
-  import MathUtil._
+case class CustomCanvas(width: Int
+                        , height: Int
+                        , blockSize: Int
+                        , aeraPainter: AeraPainter) {
 
   /**
     * ranges for x and y direction
@@ -18,13 +17,14 @@ abstract class CustomCanvas[A](width: Int
 
   private val (xs: Array[Int], ys: Array[Int]) = (ixs.map(_ * blockSize).toArray, iys.map(_ * width * blockSize).toArray)
 
-  private val xPiFac: Double = m2pi / width.toDouble
-  private val yPiFac: Double = m2pi / height.toDouble
+  private val xPiFac: Double = MathUtil.m2pi / width.toDouble
+  private val yPiFac: Double = MathUtil.m2pi / height.toDouble
 
   private val colXs: Array[Double] = ixs.map(x => xPiFac * x - Math.PI).toArray
   private val colYs: Array[Double] = iys.map(y => yPiFac * y - Math.PI).toArray
 
-  def draw(a : A, time: Double): Double = {
+  var up = 1
+  def draw(time: Double): Unit = {
     var yIdx = 0
     while (yIdx < height) {
       var xIdx = 0
@@ -33,20 +33,13 @@ abstract class CustomCanvas[A](width: Int
       while (xIdx < width) {
         val x = xs(xIdx)
         val colX = colXs(xIdx)
-        paintPixel(a, time, x, y, colX, colY)
+        aeraPainter(time, x, y, colX, colY)
         xIdx = xIdx + 1
       }
       yIdx = yIdx + 1
     }
-    time + yPiFac
   }
 
-  def paintPixel(a: A
-                 , time: Double
-                 , x: Int
-                 , y: Int
-                 , colX: Double
-                 , colY: Double): Unit
 
 
 }

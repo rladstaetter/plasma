@@ -4,10 +4,9 @@ import _root_.javafx.application.Application
 import javafx.animation.AnimationTimer
 import javafx.scene.Scene
 import javafx.scene.canvas.Canvas
-import javafx.scene.image.{PixelFormat, PixelWriter}
 import javafx.scene.layout.StackPane
 import javafx.stage.Stage
-import net.ladstatt.apps.plasma.IntArrayBackedPlasmaEffect
+import net.ladstatt.apps.plasma.{MathUtil, Timeline}
 
 /**
   * Old school graphic effect ('plasma') which is displayed via java fx.
@@ -32,20 +31,15 @@ class PlasmaJfxApp extends Application {
   /**
     * the width and height of our visual area
     */
-  val (width, height) = RectangleScreen
+  val (width, height) = BigScreen
 
-  val effect: IntArrayBackedPlasmaEffect = IntArrayBackedPlasmaEffect(width, height, 1)
+  // timeline
+  var current = 0.0
+  var direction = 1
+  val nextValue = Timeline.calcNext(0.01, 0.0, MathUtil.m2pi) _
 
+  val effect: IntArrayBackedPlasmaEffect = IntArrayBackedPlasmaEffect(width, height)
 
-  var t = 0.0
-
-  def time[A](a: => A, display: Long => Unit = s => (), divisor: Int = 1000 * 1000): A = {
-    val now = System.nanoTime
-    val result = a
-    val millis = (System.nanoTime - now) / divisor
-    display(millis)
-    result
-  }
 
   override def start(primaryStage: Stage): Unit = {
     primaryStage.setTitle("Plasma Effect")
@@ -60,23 +54,17 @@ class PlasmaJfxApp extends Application {
     primaryStage.setScene(scene)
     primaryStage.show()
 
-
     new AnimationTimer() {
       override def handle(now: Long): Unit = {
-        val (nextT) = effect.draw(effect.a, t)
-        drawArray(canvas, effect.a)
-        t = nextT
+        effect.render(canvas, current);
+        val (ndirection, ncurrent) = nextValue(current, direction)
+        current = ncurrent
+        direction = ndirection
         val duration = System.nanoTime() - now
-        println("fps: " + 1000d / (duration / (1000 * 1000)))
+        println(s"$current t, fps: " + 1000d / (duration / (1000 * 1000)))
       }
     }.start()
 
-  }
-
-
-  private def drawArray(canvas: Canvas, argbEncodedPixels: Array[Int]): Unit = {
-    val pxw: PixelWriter = canvas.getGraphicsContext2D.getPixelWriter
-    pxw.setPixels(0, 0, width, height, PixelFormat.getIntArgbInstance, argbEncodedPixels, 0, width)
   }
 
 }

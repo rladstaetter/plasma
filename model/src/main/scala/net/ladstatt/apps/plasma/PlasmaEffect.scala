@@ -3,6 +3,37 @@ package net.ladstatt.apps.plasma
 import java.lang.Math.abs
 
 import net.ladstatt.apps.plasma.MathUtil.{cos, sin}
+import net.ladstatt.apps.plasma.PlasmaTypes.UpdateBackingMemoryFn
+
+case class Color(red: Int, green: Int, blue: Int, alpha: Int)
+
+object PlasmaTypes {
+
+  type AeraPainter = (Double, Int, Int, Double, Double) => Unit
+
+  type UpdateBackingMemoryFn = (Int, Int, Color) => Unit
+}
+
+object Timeline {
+
+  def calcNext(increment: Double, lowerBound: Double, upperBound: Double)(curVal: Double, direction: Int): (Int, Double) = {
+    val next = curVal + increment * direction
+    direction match {
+      case 1 =>
+        if (next < upperBound) {
+          (direction, next)
+        } else {
+          (-direction, next)
+        }
+      case -1 =>
+        if (next > lowerBound) {
+          (direction, next)
+        } else {
+          (-direction, next)
+        }
+    }
+  }
+}
 
 /**
   * A plasma effect.
@@ -12,18 +43,29 @@ import net.ladstatt.apps.plasma.MathUtil.{cos, sin}
   * @param blockSize how many array elements do we need for one pixel (important for writing bytes or int's)
   * @tparam A the array implementation
   */
-abstract class PlasmaEffect[A](width: Int
-                               , height: Int
-                               , blockSize: Int)
-  extends CustomCanvas[A](width, height, blockSize) {
+case class PlasmaEffect[A](a: A
+                           , width: Int
+                           , height: Int
+                           , blockSize: Int
+                           , updateBackingMemoryFn: UpdateBackingMemoryFn) {
 
-  def updateArray(backingArray: A
-                  , x: Int
-                  , y: Int
-                  , red: Int
-                  , green: Int
-                  , blue: Int
-                  , alpha: Int): Unit
+
+  /**
+    * paint something at a given time (t), on certain coordinates (x,y,colX/colY)
+    */
+  def paintPixel(time: Double
+                 , x: Int
+                 , y: Int
+                 , colX: Double
+                 , colY: Double): Unit = {
+
+    updateBackingMemoryFn(x, y, plasmaEffect(time, colX, colY))
+
+  }
+
+  val canvas = CustomCanvas(width, height, blockSize, paintPixel)
+
+  def draw(t: Double): Unit = canvas.draw(t)
 
   private val colorDepth = 254
 
@@ -45,7 +87,7 @@ abstract class PlasmaEffect[A](width: Int
 
   def plasmaEffect(time: Double
                    , colX: Double
-                   , colY: Double): (Int, Int, Int, Int) = {
+                   , colY: Double): Color = {
     // wandering bars from right to left
     val wandering = wanderingBars(0, time, colX, colY)
 
@@ -63,19 +105,7 @@ abstract class PlasmaEffect[A](width: Int
     val green: Int = (abs(sin(v * Math.PI + sin(v))) * colorDepth).toInt
     val blue: Int = (abs(sin(v * Math.PI)) * colorDepth).toInt
     val alpha: Int = (sin(Math.abs(floating * v)) * colorDepth).toInt
-    (red, green, blue, alpha)
-  }
-
-  def paintPixel(a: A
-                 , time: Double
-                 , x: Int
-                 , y: Int
-                 , colX: Double
-                 , colY: Double): Unit = {
-    val (red: Int, green: Int, blue: Int, alpha: Int) = plasmaEffect(time, colX, colY)
-
-    updateArray(a, x, y, red, green, blue, alpha)
-
+    Color(red, green, blue, alpha)
   }
 
 

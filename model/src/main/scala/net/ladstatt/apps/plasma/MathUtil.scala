@@ -26,11 +26,11 @@ object MathUtil {
     */
   @inline def sinWithLookup(angle: Double): Double = sinTable(((r(angle % m2pi) + m2pi) * 1000).toInt)
 
-  @inline def nativeSin(rangle: Double): Double = Math.sin(rangle)
+  // @inline def nativeSin(rangle: Double): Double = Math.sin(rangle)
 
   @inline def cosWithLookup(angle: Double): Double = cosTable(((r(angle % m2pi) + m2pi) * 1000).toInt)
 
-  @inline def nativeCos(angle: Double): Double = Math.cos(angle)
+  // @inline def nativeCos(angle: Double): Double = Math.cos(angle)
 
   val sin = sinWithLookup _
   val cos = cosWithLookup _

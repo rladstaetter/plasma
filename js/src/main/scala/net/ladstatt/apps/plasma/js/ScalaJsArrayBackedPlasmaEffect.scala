@@ -1,6 +1,8 @@
 package net.ladstatt.apps.plasma.js
 
-import net.ladstatt.apps.plasma.PlasmaEffect
+import net.ladstatt.apps.plasma.{Color, PlasmaEffect}
+import org.scalajs.dom.ImageData
+import org.scalajs.dom.raw.CanvasRenderingContext2D
 
 import scala.scalajs.js
 
@@ -9,19 +11,31 @@ import scala.scalajs.js
   * We have to provide a js.Array[Int] as backing array and also provide a method which translates our calculated
   * colors for each pixel to the appropriate form for the javascript canvas.
   */
-case class ScalaJsArrayBackedPlasmaEffect(width: Int
-                                          , height: Int
-                                          , blockSize: Int)
-  extends PlasmaEffect[scala.scalajs.js.Array[Int]](
-    width
-    , height
-    , blockSize) {
+case class ScalaJsArrayBackedPlasmaEffect(imageData: ImageData) {
 
-  override def updateArray(backingArray: js.Array[Int], x: Int, y: Int, red: Int, green: Int, blue: Int, alpha: Int): Unit = {
+
+  private val backingArray: js.Array[Int] = imageData.data
+
+  private def updateColorAt(x: Int, y: Int, color: Color): Unit = {
     val idx = x + y
-    backingArray(idx) = red
-    backingArray(idx + 1) = green
-    backingArray(idx + 2) = blue
-    backingArray(idx + 3) = alpha
+    backingArray(idx) = color.red
+    backingArray(idx + 1) = color.green
+    backingArray(idx + 2) = color.blue
+    backingArray(idx + 3) = color.alpha
   }
+
+  private val e = PlasmaEffect[scala.scalajs.js.Array[Int]](
+    backingArray
+    , imageData.width
+    , imageData.height
+    , 4
+    , updateColorAt)
+
+  private def draw(currentT: Double): Unit = e.draw(currentT)
+
+  def render(ctx: CanvasRenderingContext2D, currentT: Double): Unit = {
+    draw(currentT)
+    ctx.putImageData(imageData, 0, 0)
+  }
+
 }
