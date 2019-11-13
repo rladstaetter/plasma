@@ -1,6 +1,6 @@
 import BuildConstants._
+import pl.project13.scala.sbt.JmhPlugin
 import sbt.{Def, _}
-
 
 lazy val commonSettings: Seq[Def.SettingsDefinition] = Seq(
   organization := org,
@@ -11,9 +11,15 @@ lazy val commonSettings: Seq[Def.SettingsDefinition] = Seq(
   resolvers ++=
     Seq(Resolver.mavenLocal)
 )
+lazy val bench = (project in file("bench"))
+  .enablePlugins(JmhPlugin)
+  .settings(commonSettings: _*)
+  .settings(name := "bench",
+    fork := true)
+  .dependsOn(model)
 
 lazy val model = (project in file("model/")).
-  //  enablePlugins(ScalaJSPlugin).
+  enablePlugins(ScalaJSPlugin).
   settings(commonSettings: _*).
   settings(name := "model"
     , fork := false
@@ -42,4 +48,4 @@ lazy val js = (project in file("js/")).
 
 lazy val plasma = (project in file(".")).
   settings(commonSettings: _*).
-  settings(name := "plasma").aggregate(model, js, jfx)
+  settings(name := "plasma").aggregate(model, js, jfx, bench)

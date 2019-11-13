@@ -7,11 +7,12 @@ import javafx.scene.canvas.Canvas
 import javafx.scene.image.{PixelFormat, PixelWriter}
 import javafx.scene.layout.StackPane
 import javafx.stage.Stage
+import net.ladstatt.apps.plasma.IntArrayBackedPlasmaEffect
 
 /**
   * Old school graphic effect ('plasma') which is displayed via java fx.
   */
-object Plasma {
+object PlasmaJfxApp {
 
   def main(args: Array[String]): Unit = {
     Application.launch(classOf[PlasmaJfxApp], args: _*)
@@ -23,19 +24,18 @@ class PlasmaJfxApp extends Application {
 
   private val BigScreen: (Int, Int) = (1200, 800)
   private val MediumScreen: (Int, Int) = (800, 600)
-  private val RectangleScreen: (Int, Int) = (500, 500)
-  private val SmallScreen: (Int, Int) = (640, 480)
+  private val RectangleScreen: (Int, Int) = (640, 480)
+  private val SmallScreen: (Int, Int) = (320, 240)
   private val Banner: (Int, Int) = (450, 150)
   private val Tiny: (Int, Int) = (100, 100)
 
   /**
     * the width and height of our visual area
     */
-  val (width, height) = SmallScreen
+  val (width, height) = RectangleScreen
 
-  val effect: JfxPlasmaEffect = JfxPlasmaEffect(width, height, 1)
+  val effect: IntArrayBackedPlasmaEffect = IntArrayBackedPlasmaEffect(width, height, 1)
 
-  val canvasArray: Array[Int] = Array.tabulate(width * height)(_ => 0)
 
   var t = 0.0
 
@@ -46,7 +46,6 @@ class PlasmaJfxApp extends Application {
     display(millis)
     result
   }
-
 
   override def start(primaryStage: Stage): Unit = {
     primaryStage.setTitle("Plasma Effect")
@@ -61,11 +60,14 @@ class PlasmaJfxApp extends Application {
     primaryStage.setScene(scene)
     primaryStage.show()
 
+
     new AnimationTimer() {
       override def handle(now: Long): Unit = {
-        val (a, nextT) = effect.draw(canvasArray, t)
-        drawArray(canvas, a)
+        val (nextT) = effect.draw(effect.a, t)
+        drawArray(canvas, effect.a)
         t = nextT
+        val duration = System.nanoTime() - now
+        println("fps: " + 1000d / (duration / (1000 * 1000)))
       }
     }.start()
 
