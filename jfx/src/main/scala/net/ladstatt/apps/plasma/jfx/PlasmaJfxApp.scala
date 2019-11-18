@@ -37,7 +37,7 @@ class PlasmaJfxApp extends Application {
   /**
     * the width and height of our visual area
     */
-  val (width, height) = RectangleScreen
+  val (width, height) = MediumScreen
 
   // timeline
   var timeLine = Timeline.Default
@@ -45,7 +45,7 @@ class PlasmaJfxApp extends Application {
 
   implicit val ec = scala.concurrent.ExecutionContext.global
 
-  val cachedEffects: Map[Int, IntArrayBackedPlasmaEffect] =
+  val cachedEffects: Map[Int, IntArrayPlasmaEffect] =
     Await.result(
       Future.sequence(for (i <- timeLine.range) yield {
         Future {
@@ -71,14 +71,14 @@ class PlasmaJfxApp extends Application {
         cachedEffects(timeLine.current).render(canvas)
         timeLine = timeLine.next
         val duration = System.nanoTime() - now
-       // println(s"${timeLine.current} t, fps: " + 1000d / (duration / (1000 * 1000)))
+        println(s"${timeLine.current} t, duration: " + duration / 1000000d )
       }
     }.start()
 
   }
 
   private def computeEffect(index: Int) = {
-    val i = IntArrayBackedPlasmaEffect(width, height, Array.tabulate(width * height)(_ => 0)).draw(index / 100.0)
+    val i = IntArrayPlasmaEffect(width, height, Array.tabulate(width * height)(_ => 0)).draw(index / 100.0)
     println("precomputed " + index)
     i
   }

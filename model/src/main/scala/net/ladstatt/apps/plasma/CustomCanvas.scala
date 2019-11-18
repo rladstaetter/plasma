@@ -20,8 +20,11 @@ case class CustomCanvas(width: Int
   private val xPiFac: Double = MathUtil.m2pi / width.toDouble
   private val yPiFac: Double = MathUtil.m2pi / height.toDouble
 
-  private val colXs: Array[Double] = ixs.map(x => xPiFac * x - Math.PI).toArray
-  private val colYs: Array[Double] = iys.map(y => yPiFac * y - Math.PI).toArray
+  private val colXs: Array[Double] = ixs.map(x => xPiFac * x).toArray
+  private val colYs: Array[Double] = iys.map(y => yPiFac * y).toArray
+
+  private val maxColX = colXs.last
+  private val maxColY = colYs.last
 
   def draw(time: Double): Unit = {
     var yIdx = 0
@@ -32,13 +35,12 @@ case class CustomCanvas(width: Int
       while (xIdx < width) {
         val x = xs(xIdx)
         val colX = colXs(xIdx)
-        aeraPainter(time, x, y, colX, colY)
+        aeraPainter(time, x, y, colX, colY, maxColX,maxColY)
         xIdx = xIdx + 1
       }
       yIdx = yIdx + 1
     }
   }
-
 
 
 }

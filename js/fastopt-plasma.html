@@ -42,20 +42,47 @@
 }
 </style>
 </head>
-<body style="background-color: black">
+<body style="background-color: white">
 
 <div align="center">
-    <canvas id="p1" width="400" height="400"></canvas>
+    <canvas id="p0" width="300" height="300"></canvas>
+    <div id="log0">duration</div>
 </div>
+
+<!--
+<div align="center">
+    <canvas id="p1" width="300" height="300"></canvas>
+    <div id="log">duration</div>
+</div>
+-->
 <div class="slidecontainer">
-    <input type="range" min="1" max="300" value="300" class="slider" id="myRange">
+    <input type="range" min="1" max="1000" value="0" class="slider" id="myRange">
 </div>
 <div align="center">
     <canvas id="p2" width="300" height="300"></canvas>
 </div>
 
 <script>
-JsPlasmaApp.render(document.getElementById('p1'));
+
+var effectFn = function(x
+         , y
+         , time
+         , colX
+         , colY
+         , maxColX
+         , maxColY) {
+
+ var cx = colX + 0.5 * Math.sin(time / 5);
+ var cy = colY + 0.5 * Math.cos(time / 3);
+ var red = Math.sin(Math.sqrt(9 * (cx * cx + cy * cy) + 1) + 5 * time);
+
+ var blue = 1 - red;
+ return new Color(red,blue,254,253);
+}
+
+JsPlasmaApp.renderUsingFn(document.getElementById('p0'),document.getElementById('log0'),effectFn);
+
+//JsPlasmaApp.render(document.getElementById('p1'),document.getElementById('log'));
 
 var slider = document.getElementById('myRange');
 slider.oninput = function() {
