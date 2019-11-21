@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>wobbly colors</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <script type="text/javascript" src="./target/scala-2.13/js-opt.js"></script>
+    <script type="text/javascript" src="./target/META-INF/resources/webjars/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="./target/META-INF/resources/webjars/bootstrap/4.3.1/css/bootstrap.min.css">
+    <style>
+.col-centered {
+float: none;
+margin-right: auto;
+margin-left: auto;
+}
+</style>
+</head>
+<body>
+
+<h2 class="text-center">wobbly colors</h2>
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- New set of columns, centered -->
+        <div class="col-sm-8 col-centered">
+
+        <div class="row">
+            <div class="col-sm-4"><canvas id="p11" width="400" height="400"></canvas></div>
+            <div class="col-sm-4"><canvas id="p12" width="400" height="400"></canvas></div>
+            <div class="col-sm-4"><canvas id="p13" width="400" height="400"></canvas></div>
+        </div>
+        </div>
+    </div>
+</div>
+<script>
+
+var wobblingBars = function(time, colX, colY) {
+  return Math.sin(1 * (colX * Math.sin(5 * time / 2) + colY * Math.cos(5 * time / 3)) + 5 * time)
+}
+
+var dancingCircle = function(time, colX, colY, timeEffect, blueCenterX, blueCenterY) {
+  return Math.sin(Math.sqrt((blueCenterX - colX) * (blueCenterX - colX) + (blueCenterY - colY) * (blueCenterY - colY)) + timeEffect * time)
+}
+
+var c = function(value) {
+ return parseInt((value / (1 / 127.0)), 10) + 127
+}
+
+var e1 = function(x, y, time, colX, colY, maxColX, maxColY) {
+
+ var wobbling = wobblingBars(time, colX, colY)
+
+ var sinTime = Math.sin(time)
+ var cosTime = Math.cos(time)
+ var timeEffect = sinTime * 5
+ var blueCenterX = sinTime * maxColX
+ var blueCenterY = cosTime * maxColY
+ var dancing = dancingCircle(time, colX, colY, timeEffect, blueCenterX, blueCenterY)
+ var alpha = wobbling + dancing
+ var green = Math.sin(alpha * Math.PI)
+ var blue = (1 - sinTime * alpha)
+ var red = (1 - cosTime * alpha)
+ var col = new Color(red, green, blue,1)
+ return col
+}
+
+var e2 = function(x, y, time, colX, colY, maxColX, maxColY) {
+ return new Color(Math.random(),Math.random(),Math.random(),253)
+}
+
+JsPlasmaApp.renderFn(document.getElementById('p11'),e1);
+JsPlasmaApp.renderFn(document.getElementById('p12'),e2);
+JsPlasmaApp.renderFn(document.getElementById('p13'),e1);
+
+
+</script>
+
+</body>
+</html>

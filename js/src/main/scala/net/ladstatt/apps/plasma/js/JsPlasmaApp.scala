@@ -1,6 +1,5 @@
 package net.ladstatt.apps.plasma.js
 
-import net.ladstatt.apps.plasma.PlasmaTypes.CalculateColorFn
 import net.ladstatt.apps.plasma.{Color, Effects, Timeline}
 import org.scalajs.dom
 import org.scalajs.dom.html
@@ -15,10 +14,29 @@ object JsPlasmaApp {
   // timeline
   var tl = Timeline.Default
 
+
+  @JSExport
+  def renderFn(canvas: html.Canvas
+               , jsEffect: scala.scalajs.js.Function7[Double, Double, Double, Double, Double, Double, Double, Color]): Unit = {
+    val ctx: CanvasRenderingContext2D = canvas.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
+
+    val pEffect = ScalaJsFlexibleCanvas(ctx.createImageData(canvas.width, canvas.height), jsEffect)
+
+    val fn: scala.scalajs.js.Function0[Any] =
+      () => {
+        val before = System.currentTimeMillis()
+        pEffect.render(ctx, tl.current / 100.0)
+        val duration = System.currentTimeMillis() - before
+        tl = tl.next
+      }
+
+    val handler = dom.window.setInterval(fn, 0)
+  }
+
   @JSExport
   def renderUsingFn(canvas: html.Canvas
                     , label: html.Div
-                    , jsEffect: scala.scalajs.js.Function7[Double,Double,Double,Double,Double,Double,Double,Color]): Unit = {
+                    , jsEffect: scala.scalajs.js.Function7[Double, Double, Double, Double, Double, Double, Double, Color]): Unit = {
     val ctx: CanvasRenderingContext2D = canvas.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
 
     val pEffect = ScalaJsFlexibleCanvas(ctx.createImageData(canvas.width, canvas.height), jsEffect)

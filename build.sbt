@@ -2,6 +2,18 @@ import BuildConstants._
 import pl.project13.scala.sbt.JmhPlugin
 import sbt.{Def, _}
 
+
+val bootstrapMinJs: NameFilter = "**/bootstrap.min.js"
+val bootstrapMinCss: NameFilter = "**/bootstrap.min.css"
+val bootstrapFilters: NameFilter = bootstrapMinCss | bootstrapMinJs
+
+def unpackjar(jar: File, to: File, filter: NameFilter): File = {
+  val files: Set[File] = IO.unzip(jar, to, filter)
+  println(s"Processing $jar and unzipping to $to")
+  files foreach println
+  jar
+}
+
 lazy val commonSettings: Seq[Def.SettingsDefinition] = Seq(
   organization := org,
   scalaVersion := scalaVer,
@@ -41,9 +53,20 @@ lazy val js = (project in file("js/")).
   enablePlugins(ScalaJSPlugin).
   settings(commonSettings: _*).
   settings(
-    name := "js",
-    libraryDependencies ++= Seq("org.scala-js" %%% "scalajs-dom" % "0.9.7"),
-    fork := false
+    name := "js"
+    , libraryDependencies ++=
+      Seq("org.scala-js" %%% "scalajs-dom" % "0.9.7"
+        , "org.webjars" % "bootstrap" % "4.3.1")
+    , fork := false
+    , resourceGenerators in Compile += Def.task {
+      val jar = (update in Compile).value
+        .select(configurationFilter("compile"))
+        .filter(_.name.contains("bootstrap"))
+        .head
+      val to = (target in Compile).value
+      unpackjar(jar, to, bootstrapFilters)
+      Seq.empty[File]
+    }.taskValue
   ).dependsOn(model)
 
 lazy val plasma = (project in file(".")).
