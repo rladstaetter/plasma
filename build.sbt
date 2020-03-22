@@ -55,7 +55,7 @@ lazy val js = (project in file("js/")).
   settings(
     name := "js"
     , libraryDependencies ++=
-      Seq("org.scala-js" %%% "scalajs-dom" % "0.9.7"
+      Seq("org.scala-js" %%% "scalajs-dom" % "1.0.0"
         , "org.webjars" % "bootstrap" % "4.3.1")
     , fork := false
     , resourceGenerators in Compile += Def.task {
